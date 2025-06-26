@@ -10,7 +10,7 @@ app.use(express.json())
 
 // 👇 Usa CORS antes de las rutas
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://ba-backend-w36q.onrender.com'], // agrega tu frontend aquí
+  origin: ['http://localhost:5173', 'https://bot-antirepasse-webapp.onrender.com'], // agrega tu frontend aquí
   methods: ['POST'],
   allowedHeaders: ['Content-Type'],
 }))
