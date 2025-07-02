@@ -22,7 +22,7 @@ if (!RECAPTCHA_SECRET_KEY) {
 }
 
 app.post('/api/recaptcha', async (req, res) => {
-  const { token, mode } = req.body
+  const { token } = req.body
 
   if (!token) {
     return res.status(400).json({ success: false, message: 'Token requerido' })
@@ -43,38 +43,29 @@ app.post('/api/recaptcha', async (req, res) => {
     if (!data.success) {
       return res.status(403).json({
         success: false,
-        message: 'Verificación reCAPTCHA fallida',
+        message: 'reCAPTCHA verification failed',
         errorCodes: data['error-codes'] || [],
       })
     }
 
-    // Flujo para reCAPTCHA v3
-    if (mode === 'v3') {
-      const score = data.score ?? 0
-      if (score >= 0.5) {
-        // Aprobado automáticamente
-        return res.json({ success: true, mode: 'v3', score })
-      } else {
-        // Score bajo, pedir v2 en frontend
-        return res.status(200).json({
-          success: false,
-          requireV2: true,
-          message: 'Score bajo, requiere reCAPTCHA v2',
-          score,
-        })
-      }
+    const score = data.score ?? 0
+
+    if (score < 0.2) {
+      return res.status(403).json({
+        success: false,
+        message: 'Suspicious activity detected (low score)',
+        score,
+      })
     }
 
-    // Flujo para reCAPTCHA v2 (no se considera score)
-    if (mode === 'v2') {
-      return res.json({ success: true, mode: 'v2', message: 'Verificación exitosa con reCAPTCHA v2' })
-    }
-
-    // Si no se especifica modo, considerar error de flujo
-    return res.status(400).json({ success: false, message: 'Modo de verificación no especificado' })
+    return res.json({
+      success: true,
+      message: 'reCAPTCHA verification passed',
+      score,
+    })
   } catch (error) {
     console.error('Error en verificación reCAPTCHA:', error)
-    return res.status(500).json({ success: false, message: 'Error interno en la verificación' })
+    return res.status(500).json({ success: false, message: 'Internal verification error' })
   }
 })
 
