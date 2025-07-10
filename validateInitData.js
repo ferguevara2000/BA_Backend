@@ -1,4 +1,3 @@
-// validateInitData.js
 import crypto from 'crypto'
 
 /**
@@ -9,7 +8,7 @@ import crypto from 'crypto'
  */
 export function validateInitData(initData, botToken) {
   const params = new URLSearchParams(initData)
-  const hash = params.get('hash') || params.get('signature') // ✅ Aceptar ambos
+  const hash = params.get('hash') || params.get('signature')
 
   if (!hash) {
     console.error("❌ No se encontró hash ni signature en initData")
@@ -28,7 +27,10 @@ export function validateInitData(initData, botToken) {
 
   // HMAC-SHA256 con secret key derivado del bot token
   const secretKey = crypto.createHash('sha256').update(botToken).digest()
-  const hmac = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex')
+  let hmac = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('base64')
+
+  // Convertir a base64-url
+  hmac = hmac.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 
   console.error("🔹 hash recibido:", hash)
   console.error("🔹 hash calculado:", hmac)
