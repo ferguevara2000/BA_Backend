@@ -49,19 +49,22 @@ app.post('/api/turnstile', async (req, res) => {
 
 const BOT_TOKEN = process.env.BOT_TOKEN
 
-app.post('/api/validate-init-data', (req, res) => {
-  const { initData } = req.body
-  if (!initData) {
-    return res.status(400).json({ success: false, message: 'Missing initData' })
-  }
+app.post('/api/validate-init-data', express.json(), (req, res) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('tma ')) {
+        return res.status(400).json({ success: false, message: 'Authorization header missing or invalid' });
+    }
 
-  const isValid = validateInitData(initData, BOT_TOKEN)
-  if (!isValid) {
-    return res.status(401).json({ success: false, message: 'Invalid initData' })
-  }
+    const initDataRaw = authHeader.substring(4);
 
-  return res.json({ success: true, message: 'initData validated successfully' })
-})
+    const isValid = validateInitDataBasic(initDataRaw);
+
+    if (!isValid) {
+        return res.status(400).json({ success: false, message: 'Invalid initData format' });
+    }
+
+    return res.status(200).json({ success: true, message: 'InitData format is valid' });
+});
 
 app.listen(PORT, () => {
   console.log(`✅ Backend running on http://localhost:${PORT}`)
