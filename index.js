@@ -2,6 +2,7 @@ import express from 'express'
 import fetch from 'node-fetch'
 import dotenv from 'dotenv'
 import cors from 'cors'
+import { validateInitData } from "./validateInitData.js"
 
 dotenv.config()
 
@@ -44,6 +45,22 @@ app.post('/api/turnstile', async (req, res) => {
     console.error('Error verifying Turnstile:', error)
     return res.status(500).json({ success: false, message: 'Internal verification error' })
   }
+})
+
+const BOT_TOKEN = process.env.BOT_TOKEN
+
+app.post('/api/validate-init-data', (req, res) => {
+  const { initData } = req.body
+  if (!initData) {
+    return res.status(400).json({ success: false, message: 'Missing initData' })
+  }
+
+  const isValid = validateInitData(initData, BOT_TOKEN)
+  if (!isValid) {
+    return res.status(401).json({ success: false, message: 'Invalid initData' })
+  }
+
+  return res.json({ success: true, message: 'initData validated successfully' })
 })
 
 app.listen(PORT, () => {
