@@ -56,7 +56,7 @@ app.post('/api/validate-init-data', express.json(), (req, res) => {
         return res.status(400).json({ success: false, message: 'initData missing or invalid' });
     }
 
-    const isValid = validateInitDataBasic(initData);
+    const isValid = validateInitData(initData);
 
     if (!isValid) {
         return res.status(400).json({ success: false, message: 'Invalid initData format' });
