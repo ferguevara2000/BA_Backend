@@ -9,14 +9,17 @@ import crypto from 'crypto'
  */
 export function validateInitData(initData, botToken) {
   const params = new URLSearchParams(initData)
-  const hash = params.get('hash')
-  console.log(params, "params");
-  if (!hash) return false
+  const hash = params.get('hash') || params.get('signature') // ✅ Aceptar ambos
 
-  // Ordenar claves alfabéticamente y crear data_check_string
+  if (!hash) {
+    console.error("❌ No se encontró hash ni signature en initData")
+    return false
+  }
+
+  // Crear dataCheckString excluyendo hash y signature
   const dataCheckArray = []
   for (const [key, value] of params.entries()) {
-    if (key !== 'hash') {
+    if (key !== 'hash' && key !== 'signature') {
       dataCheckArray.push(`${key}=${value}`)
     }
   }
@@ -27,9 +30,9 @@ export function validateInitData(initData, botToken) {
   const secretKey = crypto.createHash('sha256').update(botToken).digest()
   const hmac = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex')
 
-  console.error("hash recibido:", hash);
-  console.error("hash calculado:", hmac);
-  console.error("dataCheckString:\n", dataCheckString);
+  console.error("🔹 hash recibido:", hash)
+  console.error("🔹 hash calculado:", hmac)
+  console.error("🔹 dataCheckString:\n", dataCheckString)
 
   return hmac === hash
 }
