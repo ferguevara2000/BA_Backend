@@ -27,10 +27,7 @@ export function validateInitData(initData, botToken) {
 
   // HMAC-SHA256 con secret key derivado del bot token
   const secretKey = crypto.createHash('sha256').update(botToken).digest()
-  let hmac = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('base64')
-
-  // Convertir a base64-url
-  hmac = hmac.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+  const hmac = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex')
 
   console.error("🔹 hash recibido:", hash)
   console.error("🔹 hash calculado:", hmac)
