@@ -27,9 +27,9 @@ export function validateInitData(initData, botToken) {
   const secretKey = crypto.createHash('sha256').update(botToken).digest()
   const hmac = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex')
 
-  console.log("hash recibido:", hash);
-  console.log("hash calculado:", hmac);
-  console.log("dataCheckString:\n", dataCheckString);
+  console.error("hash recibido:", hash);
+  console.error("hash calculado:", hmac);
+  console.error("dataCheckString:\n", dataCheckString);
 
   return hmac === hash
 }
