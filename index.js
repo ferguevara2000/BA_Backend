@@ -50,14 +50,13 @@ app.post('/api/turnstile', async (req, res) => {
 const BOT_TOKEN = process.env.BOT_TOKEN
 
 app.post('/api/validate-init-data', express.json(), (req, res) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('tma ')) {
-        return res.status(400).json({ success: false, message: 'Authorization header missing or invalid' });
+    const { initData } = req.body;
+
+    if (!initData || typeof initData !== 'string') {
+        return res.status(400).json({ success: false, message: 'initData missing or invalid' });
     }
 
-    const initDataRaw = authHeader.substring(4);
-
-    const isValid = validateInitDataBasic(initDataRaw);
+    const isValid = validateInitDataBasic(initData);
 
     if (!isValid) {
         return res.status(400).json({ success: false, message: 'Invalid initData format' });
