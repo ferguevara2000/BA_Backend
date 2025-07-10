@@ -10,6 +10,7 @@ import crypto from 'crypto'
 export function validateInitData(initData, botToken) {
   const params = new URLSearchParams(initData)
   const hash = params.get('hash')
+  console.log(params, "params");
   if (!hash) return false
 
   // Ordenar claves alfabéticamente y crear data_check_string
@@ -25,6 +26,10 @@ export function validateInitData(initData, botToken) {
   // HMAC-SHA256 con secret key derivado del bot token
   const secretKey = crypto.createHash('sha256').update(botToken).digest()
   const hmac = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex')
+
+  console.log("hash recibido:", hash);
+  console.log("hash calculado:", hmac);
+  console.log("dataCheckString:\n", dataCheckString);
 
   return hmac === hash
 }
